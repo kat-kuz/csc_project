@@ -1,4 +1,3 @@
-import numpy as np
 import itertools
 
 
@@ -57,49 +56,23 @@ def get_best_welfare_result(profile, n, egal=False):
 def iterate_over_profiles(n, egal=False):
     ys = 0
     best = 0
+    ys_strategic = 0
+    best_strategic = 0
     for i, profile in enumerate(itertools.product(itertools.permutations([i + 1 for i in range(n)]), repeat=n)):
-        best_result = get_best_welfare_result(profile, n, egal)
-        ys_result = get_yankee_swap_result(profile, n, egal)
-        with open('best_result_3.txt', 'a') as f:
-            f.write('\n'.join(map(str, list(profile))) + '\n')
-            f.write(str(best_result[1]) + ' ' + str(best_result[0]) + '\n\n')
-        with open('ys_result_3.txt', 'a') as f:
-            f.write('\n'.join(map(str, list(profile))) + '\n')
-            f.write(str(ys_result[1]) + ' ' + str(ys_result[0]) + '\n\n')
-        best += best_result[0]
-        ys += ys_result[0]
-    return ys, best
+        best += get_best_welfare_result(profile, n, egal)[0]
+        ys += get_yankee_swap_result(profile, n, egal)[0]
+        for man in range(n):
+            best_strategic += strategic_behavior(profile, n, ys=False, manipulator=man)[0]
+            ys_strategic += strategic_behavior(profile, n, ys=True, manipulator=man)[0]
+    return ys, best, ys_strategic, best_strategic
 
 
 def strategic_behavior(profile, n, ys=True, manipulator=0):
     if ys:
-        curr_result = get_yankee_swap_result(profile, n)
-    else:
-        curr_result = get_best_welfare_result(profile, n)
-    manipulator_utility = n - 1 - profile[manipulator].index(curr_result[1][manipulator])
-    welfare = curr_result[0]
-    best_strategy = profile[manipulator]
-    for strategy in itertools.permutations([i + 1 for i in range(n)]):
-        new_profile = list(profile)
-        new_profile[manipulator] = strategy
-        if ys:
-            new_result = get_yankee_swap_result(new_profile, n)
-        else:
-            new_result = get_best_welfare_result(new_profile, n)
-        if manipulator_utility < n - 1 - profile[manipulator].index(new_result[1][manipulator]):
-            welfare = new_result[0]
-            curr_result = new_result
-            best_strategy = strategy
-            break
-    return welfare, curr_result[1], list(best_strategy)
-
-
-def strategic_behavior_best(profile, n, ys=True, manipulator=0):
-    if ys:
         best_result = get_yankee_swap_result(profile, n)
     else:
         best_result = get_best_welfare_result(profile, n)
-    manipulator_utility = n - 1 - profile[manipulator].index(best_result[1][manipulator])
+    manipulator_utility = n - profile[manipulator].index(best_result[1][manipulator])
     welfare = best_result[0]
     best_strategy = profile[manipulator]
     for strategy in itertools.permutations([i + 1 for i in range(n)]):
@@ -109,8 +82,8 @@ def strategic_behavior_best(profile, n, ys=True, manipulator=0):
             new_result = get_yankee_swap_result(new_profile, n)
         else:
             new_result = get_best_welfare_result(new_profile, n)
-        if manipulator_utility < n - 1 - profile[manipulator].index(new_result[1][manipulator]):
-            manipulator_utility = n - 1 - profile[manipulator].index(new_result[1][manipulator])
+        if manipulator_utility < n - profile[manipulator].index(new_result[1][manipulator]):
+            manipulator_utility = n - profile[manipulator].index(new_result[1][manipulator])
             welfare = new_result[0]
             best_result = new_result
             best_strategy = strategy
