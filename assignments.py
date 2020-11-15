@@ -1,4 +1,5 @@
 import itertools
+import numpy as np
 
 
 def calc_welfare(profile, result, n):
@@ -67,6 +68,11 @@ def iterate_over_profiles(n, egal=False):
     return ys, best, ys_strategic, best_strategic
 
 
+def generate_profile_ic(n):
+    profile = [list(np.random.permutation(range(1, n+1))) for i in range(n)]
+    return profile
+
+
 def strategic_behavior(profile, n, ys=True, manipulator=0):
     if ys:
         best_result = get_yankee_swap_result(profile, n)
@@ -91,7 +97,17 @@ def strategic_behavior(profile, n, ys=True, manipulator=0):
 
 
 def main():
-    print(iterate_over_profiles(3))
+    np.random.seed(42)
+    count = 10000
+    avg_result_ys = 0
+    avg_result_best = 0
+    for i in range(count):
+        profile = generate_profile_ic(5)
+        avg_result_ys += get_yankee_swap_result(profile, 5)[0]
+        avg_result_best += get_best_welfare_result(profile, 5)[0]
+    avg_result_ys /= float(count)
+    avg_result_best /= float(count)
+    print(avg_result_ys, avg_result_best)
 
 
 if __name__ == "__main__":
