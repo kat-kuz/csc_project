@@ -73,6 +73,26 @@ def generate_profile_ic(n):
     return profile
 
 
+def iterate_over_random_profile(n, count):
+    np.random.seed(42)
+    avg_result_ys = 0
+    avg_result_best = 0
+    avg_result_strategic_ys = 0
+    avg_result_strategic_best = 0
+    for i in range(count):
+        profile = generate_profile_ic(n)
+        avg_result_ys += get_yankee_swap_result(profile, n)[0]
+        avg_result_best += get_best_welfare_result(profile, n)[0]
+        for man in range(n):
+            avg_result_strategic_best += strategic_behavior(profile, n, ys=False, manipulator=man)[0]
+            avg_result_strategic_ys += strategic_behavior(profile, n, ys=True, manipulator=man)[0]
+    avg_result_ys /= float(count)
+    avg_result_best /= float(count)
+    avg_result_strategic_ys /= (float(count) * n)
+    avg_result_strategic_best /= (float(count) * n)
+    return avg_result_ys, avg_result_best, avg_result_strategic_ys, avg_result_strategic_best
+
+
 def strategic_behavior(profile, n, ys=True, manipulator=0):
     if ys:
         best_result = get_yankee_swap_result(profile, n)
@@ -97,17 +117,7 @@ def strategic_behavior(profile, n, ys=True, manipulator=0):
 
 
 def main():
-    np.random.seed(42)
-    count = 10000
-    avg_result_ys = 0
-    avg_result_best = 0
-    for i in range(count):
-        profile = generate_profile_ic(5)
-        avg_result_ys += get_yankee_swap_result(profile, 5)[0]
-        avg_result_best += get_best_welfare_result(profile, 5)[0]
-    avg_result_ys /= float(count)
-    avg_result_best /= float(count)
-    print(avg_result_ys, avg_result_best)
+    print(iterate_over_random_profile(5, 10000))
 
 
 if __name__ == "__main__":
