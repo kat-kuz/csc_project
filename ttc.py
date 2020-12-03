@@ -1,41 +1,37 @@
 
-def dfs(graph, i, visited):
+def get_cycle_vertex(graph, i, visited):
     visited[i] = 1
     if visited[graph[i][0]] == 0:
-        return dfs(graph, graph[i][0], visited)
-    elif visited[graph[i][0]] == 1 and i != graph[i][0]:
-        return True, i
+        return get_cycle_vertex(graph, graph[i][0], visited)
     else:
-        return False, 0
+        return i
 
 
-def update_result(result, graph, v):
-    new_graph = graph.copy()
-    new_result = result.copy()
+def update_state(res, graph, items_set, v, profile):
+    items = items_set.copy()
+    new_res = res.copy()
     w = graph[v][0]
-    new_result[graph[w][1]] = graph[w][0]
-    new_graph[w] = (w, graph[w][1])
-
+    items.remove(w)
+    new_res[graph[w][1]] = graph[w][0]
     while w != v:
         w = graph[w][0]
-        new_result[graph[w][1]] = graph[w][0]
-        new_graph[w] = (w, graph[w][1])
-    return new_result, new_graph
+        items.remove(w)
+        new_res[graph[w][1]] = graph[w][0]
+    new_graph = {}
+    for x in items:
+        agent = new_res.index(x)
+        for i in range(len(res)):
+            if profile[agent][i] in items:
+                new_graph[x] = (profile[agent][i], agent)
+                break
+    return new_res, new_graph, items
 
 
 def ttc(profile, result, n):
+    items_set = set(range(1, n+1))
     graph = {result[i]: (profile[i][0], i) for i in range(n)}
-    new_result = result.copy()
-    new_graph = graph.copy()
-    for j in range(n):
-        any_cycles = False
-        for i in range(1, n+1):
-            visited = [0] * (n + 1)
-            has_cycle, v = dfs(new_graph, i, visited)
-            if has_cycle:
-                any_cycles = True
-                new_result, new_graph = update_result(new_result, new_graph, v)
-                break
-        if not any_cycles:
-            break
-    return new_result
+    while len(items_set) > 0:
+        visited = [0] * (n + 1)
+        v = get_cycle_vertex(graph, next(iter(items_set)), visited)
+        result, graph, items_set = update_state(result, graph, items_set, v, profile)
+    return result

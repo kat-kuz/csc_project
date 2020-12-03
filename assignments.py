@@ -70,7 +70,7 @@ def iterate_over_profiles(n, algo=get_yankee_swap_result, egal=False):
     for i, profile in enumerate(itertools.product(itertools.permutations([i + 1 for i in range(n)]), repeat=n)):
         total += algo(profile, n, egal)[0]
         for man in range(n):
-            total_strategic += strategic_behavior(profile, n, algo, man)[0]
+            total_strategic += strategic_behavior(profile, n, algo, man, egal=egal)[0]
     return total, total_strategic
 
 
@@ -79,29 +79,29 @@ def generate_profile_ic(n):
     return profile
 
 
-def iterate_over_random_profiles(n, count, algo=get_yankee_swap_result):
+def iterate_over_random_profiles(n, count, algo=get_yankee_swap_result, egal=False):
     np.random.seed(42)
     avg_result = 0
     avg_result_strategic = 0
     for i in range(count):
         profile = generate_profile_ic(n)
-        avg_result += algo(profile, n)[0]
+        avg_result += algo(profile, n, egal)[0]
         for man in range(n):
-            avg_result_strategic += strategic_behavior(profile, n, algo, manipulator=man)[0]
+            avg_result_strategic += strategic_behavior(profile, n, algo, man, egal=egal)[0]
     avg_result /= float(count)
     avg_result_strategic /= (float(count) * n)
     return avg_result, avg_result_strategic
 
 
-def strategic_behavior(profile, n, algo=get_yankee_swap_result, manipulator=0):
-    best_result = algo(profile, n)
+def strategic_behavior(profile, n, algo=get_yankee_swap_result, manipulator=0, egal=False):
+    best_result = algo(profile, n, egal)
     manipulator_utility = n - profile[manipulator].index(best_result[1][manipulator])
     welfare = best_result[0]
     best_strategy = profile[manipulator]
     for strategy in itertools.permutations([i + 1 for i in range(n)]):
         new_profile = list(profile)
         new_profile[manipulator] = strategy
-        new_result = algo(new_profile, n)
+        new_result = algo(new_profile, n, egal)
         if manipulator_utility < n - profile[manipulator].index(new_result[1][manipulator]):
             manipulator_utility = n - profile[manipulator].index(new_result[1][manipulator])
             welfare = new_result[0]
@@ -111,18 +111,22 @@ def strategic_behavior(profile, n, algo=get_yankee_swap_result, manipulator=0):
 
 
 def main():
-    profile = [[2, 4, 1, 3], [2, 4, 1, 3], [4, 1, 2, 3], [2, 1, 4, 3]]
-    print(get_yankee_swap_result(profile, 4))
-    print(get_ys_ttc_result(profile, 4))
-    print(get_best_welfare_result(profile, 4))
+    # profile = [[1, 2, 3], [1, 2, 3], [2, 1, 3]]
+    # print(get_yankee_swap_result(profile, 3))
+    # print(get_ys_ttc_result(profile, 3))
+    # print(get_best_welfare_result(profile, 3))
 
-    print(iterate_over_random_profiles(3, 10000, get_yankee_swap_result))
-    print(iterate_over_random_profiles(3, 10000, get_ys_ttc_result))
-    print(iterate_over_random_profiles(3, 10000, get_best_welfare_result))
+    egal = True
+    n = 5
+    sample_size = 10000
 
-    print(iterate_over_profiles(3, get_yankee_swap_result))
-    print(iterate_over_profiles(3, get_ys_ttc_result))
-    print(iterate_over_profiles(3, get_best_welfare_result))
+    print(iterate_over_random_profiles(n, sample_size, get_yankee_swap_result, egal))
+    print(iterate_over_random_profiles(n, sample_size, get_ys_ttc_result, egal))
+    print(iterate_over_random_profiles(n, sample_size, get_best_welfare_result, egal))
+
+    # print(iterate_over_profiles(n, get_yankee_swap_result, egal))
+    # print(iterate_over_profiles(n, get_ys_ttc_result, egal))
+    # print(iterate_over_profiles(n, get_best_welfare_result, egal))
 
 
 
