@@ -57,21 +57,3 @@ def hungarian(a, n):
     return n * n + v[0], ans[1:]
 
 
-# n = 4
-# np.random.seed(42)
-# profile = [[1, 4, 3, 2], [1, 4, 3, 2], [1, 2, 4, 3], [2, 3, 1, 4]]
-# profile_with_ind = [(profile[i], i) for i in range(n)]
-# best_result = [[0] * n for _ in range(n)]
-# size = 10
-# for i in range(size):
-#     new_profile_with_ind = np.random.permutation(profile_with_ind)
-#     new_profile = [x[0] for x in new_profile_with_ind]
-#     perm_result = hungarian(hung_matrix(new_profile, n), n)
-#     new_result = [0]*n
-#     for i in range(n):
-#         best_result[new_profile_with_ind[i][1]][perm_result[1][i] - 1] += 1
-#         new_result[new_profile_with_ind[i][1]] = perm_result[1][i]
-#     print(new_result, best_result)
-# best_result = [[best_result[i][j] / size for j in range(n)] for i in range(n)]
-# print(best_result)
-
